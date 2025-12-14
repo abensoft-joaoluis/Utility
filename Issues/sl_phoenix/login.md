@@ -5,6 +5,35 @@
 ## 1. Problema Central e Contexto
 O objetivo inicial era unificar o "Erlang Cookie" entre os serviços. Durante o processo, identificou-se que a discrepância de cookies mascarava um problema estrutural de nomenclatura de nós (`zotonic@127.0.0.1` vs `phoenix@localhost`), o que inviabilizava a comunicação direta, independentemente do cookie utilizado.
 
+# Relatório de Solução Crítica e Diagnóstico de Infraestrutura
+**Data:** 14 de Dezembro de 2025
+**Status:** Resolvido
+**Resumo:** Correção de conflito de domínios (Domain Mismatch) e recuperação de serviço.
+
+## 1. A SOLUÇÃO DEFINITIVA (Causa Raiz)
+**Problema Identificado:** Incompatibilidade de configuração de domínios (Domain Mismatch).
+A análise final revelou que o problema de autenticação e sessão não era apenas o cookie Erlang ou o nome do nó, mas uma contradição direta nas configurações do site:
+
+* **Hostname Configurado:** `superleme.abensoft:8443`
+* **Cookie Domain Configurado:** `.superleme.dev`
+* **Conflito em `/etc/hosts`:** O arquivo continha entradas conflitantes para ambos os domínios (`superleme.dev` e `superleme.abensoft`).
+
+**A Correção Realizada:**
+O arquivo `zotonic_site.config` foi editado para alinhar o `hostname` com o `cookie_domain`, padronizando o ambiente para utilizar **`superleme.dev`** como alvo. Isso resolveu a incapacidade do navegador e do servidor de manterem uma sessão válida.
+
+---
+
+## 2. Procedimento de Restart via RPC (Bypass de Script)
+Como os scripts padrão (`bin/zotonic restart`) falhavam devido aos problemas residuais de FQDN/Node Name, a reinicialização do site foi forçada diretamente via comando Erlang RPC, conectando-se ao nó em execução.
+
+**Comando Executado:**
+```bash
+erl -name restart@abensoft.local -setcookie OMBCSLXTXQYYPBOAIRWT -eval "
+rpc:call('zotonic@abensoft.local', z_sites_manager, restart, [superleme]),
+io:format(\"Site restarted~n\"),
+init:stop()." -noshell
+
+
 ## 2. Obstáculo: Nomenclatura de Nós (Node Naming)
 **Diagnóstico:** O uso de endereços IP em "longnames" Erlang impediu a inicialização correta da VM.
 **Medida Adotada (Contorno):** Para contornar a limitação sem reconfigurar a rede inteira, optou-se por simular um FQDN local.
