@@ -1,5 +1,5 @@
 import './App.css'
-import DocumentUploadHandler from './components/editor/upload/DocumentUploadHandler'
+import DocumentUploadHandler from '@/components/editor/upload/DocumentUploadHandler'
 
 function App() {
   return (

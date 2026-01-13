@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client'
 import mammoth from "mammoth"
 import TurndownService from "turndown"
 import Markdown from 'react-markdown'
-import FileUpload from './FileUpload'
-import { Button } from '../../ui/button'
+import FileUpload from '@/components/editor/upload/FileUpload'
+import { Button } from '@/components/ui/button'
 
 export default function DocumentUploadHandler() {
   const [file, setFile] = useState<File | null>(null)
