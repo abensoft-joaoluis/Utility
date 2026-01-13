@@ -13,6 +13,18 @@ A questão é se há uma forma de ler as variáveis contidas dentro de um docume
 1. No front-end é possível usar a biblioteca mammoth.js. Ela é especificamente criada para transformar documentos docx em Markdown.
 > O usuário seleciona o arquivo -> O React lê o ArrayBuffer -> mammoth converte para HTML -> turndown converte para Markdown -> Exibe na tela. O upside é que o servidor não precisa lidar com isso, e portanto fica mais leve. Supostamente o mammoth.js pode causar bugs visuais nos arquivos dependendo da estrutura, se for complexa demais.
 
+** Essa opção é mais relevante, arquivos legados são desnecessários **
+- HTML para Markdown: node-html-markdown or turndown 
+
+https://github.com/mwilliamson/mammoth.js
+https://www.npmjs.com/package/mammoth
+https://www.npmjs.com/package/node-html-markdown
+https://www.npmjs.com/package/turndown
+docx -> html -> markdown
+
+
+
+
 2. Uso de Python via NIF em Elixir. Basicamente conectar o servidor a um código de python que rode uma biblioteca tal como o python-docx. 
 > erlport, python-docx (leitura), pypandoc (conversão)
 
