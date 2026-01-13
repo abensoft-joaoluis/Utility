@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo LGPD - Mockup</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- reCAPTCHA Enterprise -->
+    <script src="https://www.google.com/recaptcha/enterprise.js?hl=pt-BR" async defer></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .termo-content {
+            padding-top: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .termo-content h2 {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .termo-content ol {
+            counter-reset: item;
+            list-style-type: none;
+        }
+        .termo-content ol > li {
+            counter-increment: item;
+            margin-bottom: 20px;
+        }
+        .termo-content ol > li:before {
+            content: counter(item, upper-roman) ". ";
+            font-weight: bold;
+        }
+        .termo-content ul {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .form-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .checkbox-wrapper label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 16px;
+        }
+        .recaptcha-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .submit-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+        }
+        .d-none {
+            display: none !important;
+        }
+        .permission-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .permission-warning i {
+            font-size: 48px;
+            color: #ffc107;
+            margin-bottom: 15px;
+        }
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 9999;
+        }
+        .debug-panel h4 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            color: #ffc107;
+            border-bottom: 1px solid #ffc107;
+            padding-bottom: 5px;
+        }
+        .debug-panel .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            background: #495057;
+            border-radius: 3px;
+            word-break: break-all;
+        }
+        .debug-panel .log-success {
+            border-left: 3px solid #28a745;
+        }
+        .debug-panel .log-error {
+            border-left: 3px solid #dc3545;
+        }
+        .debug-panel .log-info {
+            border-left: 3px solid #17a2b8;
+        }
+        .toggle-debug {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: #343a40;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .toggle-debug:hover {
+            background: #495057;
+        }
+    </style>
+</head>
+<body>
+    <!-- Debug Toggle Button -->
+    <button class="toggle-debug" onclick="toggleDebugPanel()">
+        <i class="fas fa-bug"></i> Debug
+    </button>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel d-none">
+        <h4><i class="fas fa-terminal"></i> Debug Console</h4>
+        <div id="debugLogs"></div>
+        <button onclick="clearDebugLogs()" style="margin-top: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+            <i class="fas fa-trash"></i> Clear
+        </button>
+    </div>
+    <div class="main-container">
+        <!-- Permission Warning (initially hidden, shown if location permission denied) -->
+        <div id="nao_permitiu" class="d-none">
+            <div class="permission-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Aguardando Permissão de Localização</h3>
+                <p>Para continuar, é necessário permitir o acesso à sua localização.</p>
+            </div>
+        </div>
+
+        <!-- Main LGPD Form -->
+        <div id="termo_de_uso" class="">
+            <div class="card">
+                <div class="card-body">
+                    <!-- LGPD Terms Content -->
+                    <div class="termo-content">
+                        <h2><b>TERMO DE CONSENTIMENTO PARA TRATAMENTO DE DADOS PESSOAIS</b></h2>
+
+                        <ol>
+                            <li>
+                                <strong>DA AUTORIZAÇÃO</strong><br>
+                                Este documento visa registrar a manifestação livre e inequívoca pela qual o <strong>Titular</strong> concorda com o tratamento de seus dados pessoais para finalidade específica, em conformidade com a Lei nº 13.709/2018.
+                                O Titular consente e concorda que a empresa <strong>[NOME DA EMPRESA]</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº <strong>[CNPJ DA EMPRESA]</strong>, doravante denominada <strong>Controladora</strong>, tome decisões referentes ao tratamento de seus dados pessoais, bem como realize o acesso, reprodução, transmissão, distribuição, processamento, arquivamento, armazenamento, eliminação, avaliação ou controle da informação, modificação, comunicação, transferência, difusão ou extração.
+                            </li>
+
+                            <li>
+                                <strong>DOS DADOS PESSOAIS</strong><br>
+                                A Controladora fica autorizada a tomar decisões referentes ao tratamento e a realizar o tratamento dos seguintes dados pessoais do Titular:
+                                <ul>
+                                    <li>Nome completo;</li>
+                                    <li>CPF e RG;</li>
+                                    <li>Data de Nascimento;</li>
+                                    <li>Sexo/Gênero;</li>
+                                    <li>Nacionalidade;</li>
+                                    <li>Filiação;</li>
+                                    <li>Grau de Instrução;</li>
+                                    <li>Estado Civil;</li>
+                                    <li>PIS/ PASEP/NIT/NIS;</li>
+                                    <li>Endereço;</li>
+                                    <li>Endereço de e-mail;</li>
+                                    <li>Número de telefone;</li>
+                                    <li>Dados bancários (Agência);</li>
+                                    <li>Dados de renda;</li>
+                                    <li>Assinatura;</li>
+                                    <li>Informações de perfil de interesses e preferências de compra/venda;</li>
+                                    <li>Informações sobre valores de pré-análise de crédito e negociações.</li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <strong>FINALIDADE DO TRATAMENTO DE DADOS</strong><br>
+                                O tratamento dos dados pessoais listados neste termo tem as seguintes finalidades:
+                                <ul>
+                                    <li>Possibilitar que a Controladora cadastre, identifique e entre em contato com o Titular para fins de relacionamento comercial.</li>
+                                    <li>Possibilitar que a Controladora forneça ao Titular seus produtos e serviços, de forma remunerada ou gratuita. (Conta, Cartão, Seguro, Capitalização, financiamentos [CROT, CDC, Consignado], Compra, Venda e Consórcio de imóveis).</li>
+                                    <li>Possibilitar que a Controladora estruture, teste, promova e oferte propaganda de produtos e serviços personalizados ou não ao perfil do Titular.</li>
+                                    <li>Possibilitar o recebimento e processamento de sugestões, reclamações e elogios.</li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <strong>COMPARTILHAMENTO DE DADOS COM OUTROS SETORES DA CONTROLADORA</strong><br>
+                                A Controladora fica autorizada a compartilhar os dados pessoais do Titular com outros agentes de tratamento de dados, caso seja necessário para as finalidades listadas neste termo, observados os princípios e as garantias estabelecidas pela Lei nº 13.709/2018.
+                            </li>
+
+                            <li>
+                                <strong>COMPARTILHAMENTO DE DADOS COM TERCEIROS</strong><br>
+                                A Controladora fica autorizada a compartilhar os dados pessoais do Titular com empresas terceirizadas que prestam serviços a ela e que são relacionados ao cumprimento da atividade-fim desta autorização.
+                            </li>
+
+                            <li>
+                                <strong>SEGURANÇA DOS DADOS</strong><br>
+                                A Controladora responsabiliza-se pela manutenção de medidas de segurança, técnicas e administrativas aptas a proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou qualquer forma de tratamento inadequado ou ilícito.
+                                Em conformidade ao art. 48 da Lei nº 13.709/2018, o Controlador comunicará ao Titular e à Autoridade Nacional de Proteção de Dados (ANPD) a ocorrência de incidente de segurança que possa acarretar risco ou dano relevante ao Titular.
+                            </li>
+
+                            <li>
+                                <strong>TÉRMINO DO TRATAMENTO DOS DADOS</strong><br>
+                                A Controladora poderá manter e tratar os dados pessoais do Titular durante todo o período em que eles forem pertinentes ao alcance das finalidades listadas neste termo. Dados pessoais anonimizados, sem possibilidade de associação ao indivíduo, poderão ser mantidos por período indefinido.
+                                O Titular poderá solicitar à Controladora, a qualquer momento, que sejam eliminados os dados pessoais não anonimizados.
+                                O Titular fica ciente de que poderá ser inviável à Controladora continuar o fornecimento de produtos ou serviços ao Titular a partir da eliminação dos dados pessoais.
+                            </li>
+
+                            <li>
+                                <strong>DIREITOS DO TITULAR</strong><br>
+                                O Titular tem direito a obter da Controladora, em relação aos dados por ela tratados, a qualquer momento, de forma gratuita e mediante requisição:
+                                <ul>
+                                    <li>Confirmação da existência de tratamento;</li>
+                                    <li>Acesso aos dados;</li>
+                                    <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
+                                    <li>Anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com o disposto na Lei nº 13.709/2018;</li>
+                                    <li>Portabilidade dos dados a outro fornecedor de serviços ou produto, mediante requisição expressa, de acordo com a regulamentação da autoridade nacional, observados os segredos comerciais e industriais;</li>
+                                    <li>Eliminação dos dados pessoais tratados com o consentimento do titular, exceto nas hipóteses previstas no art. 16 da Lei nº 13.709/2018;</li>
+                                    <li>Informação das entidades públicas e privadas com as quais o controlador realizou uso compartilhado de dados;</li>
+                                    <li>Informação sobre a possibilidade de não fornecer consentimento e sobre as consequências da negativa;</li>
+                                    <li>Revogação do consentimento, nos termos do art. 8º, §5º da Lei nº 13.709/2018.</li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <strong>DIREITO DE REVOGAÇÃO DO CONSENTIMENTO</strong><br>
+                                Esse consentimento poderá ser revogado pelo Titular, a qualquer momento, mediante solicitação diretamente com a Controladora, observadas as obrigações legais ou regulatórias a serem cumpridas pela Controladora, na forma do Art. 7º, inciso II da Lei nº 13.709/2018.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="card-footer form-footer">
+                    <form id="form_crud_rest_api" class="form-horizontal" method="post">
+                        <!-- Hidden Fields -->
+                        <input type="hidden" id="aceite-id" name="aceite-id" value="">
+                        <input type="hidden" id="aceite-json" name="aceite-json" value="">
+                        <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" value="">
+                        <input type="hidden" id="expected_action" name="expected_action" value="submit">
+
+                        <!-- Checkbox -->
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="aceite-termo_lgpd" name="aceite-termo_lgpd" value="on">
+                            <label for="aceite-termo_lgpd">Li e concordo com o(s) termos e condições do site</label>
+                        </div>
+
+                        <!-- reCAPTCHA Enterprise Checkbox -->
+                        <div class="recaptcha-wrapper">
+                            <div class="g-recaptcha" data-sitekey="6LfuHEMsAAAAAAvwFRfzY7vKqv3j3qDA_NV4IMaT" data-action="submit"></div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="submit-wrapper">
+                            <button id="submit-button" class="btn btn-primary btn-lg d-none" type="submit">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Debug logging functions
+        function debugLog(message, type = 'info') {
+            const logsDiv = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<strong>${timestamp}</strong>: ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            panel.classList.toggle('d-none');
+        }
+
+        function clearDebugLogs() {
+            document.getElementById('debugLogs').innerHTML = '';
+            debugLog('Debug logs cleared', 'info');
+        }
+
+        $(document).ready(function() {
+            debugLog('Page loaded - Initializing LGPD form', 'success');
+
+            // Toggle submit button when checkbox changes
+            $("#aceite-termo_lgpd").change(function() {
+                let termoAceito = $(this).is(':checked');
+                if(termoAceito) {
+                    $('#submit-button').removeClass('d-none');
+                    debugLog('Checkbox checked - Submit button enabled', 'success');
+                } else {
+                    $('#submit-button').addClass('d-none');
+                    debugLog('Checkbox unchecked - Submit button hidden', 'info');
+                }
+            });
+
+            // Mock function to simulate permission monitoring
+            // In the real app, this would check for geolocation permissions
+            function monitorPermissionStatus() {
+                debugLog('Checking permissions...', 'info');
+                return new Promise((resolve) => {
+                    // Simulate checking for permissions
+                    // In real implementation, this would gather device/location data
+                    setTimeout(() => {
+                        const mockData = {
+                            timestamp: new Date().toISOString(),
+                            userAgent: navigator.userAgent,
+                            language: navigator.language,
+                            platform: navigator.platform,
+                            screenResolution: `${window.screen.width}x${window.screen.height}`,
+                            // Add more mock data as needed
+                        };
+                        debugLog('Permission data collected: ' + JSON.stringify(mockData, null, 2), 'success');
+                        resolve(JSON.stringify(mockData));
+                    }, 500);
+                });
+            }
+
+            // Function to check if data is valid
+            function isArrayWithValues(data) {
+                try {
+                    return data && data.length > 0;
+                } catch(e) {
+                    return true; // For mockup purposes, always return true
+                }
+            }
+
+            // Initialize the form
+            monitorPermissionStatus().then(data => {
+                if(isArrayWithValues(data)) {
+                    $('#termo_de_uso').removeClass('d-none');
+                    $('#nao_permitiu').addClass('d-none');
+                    debugLog('Form initialized successfully', 'success');
+                } else {
+                    $('#nao_permitiu').removeClass('d-none');
+                    $('#termo_de_uso').addClass('d-none');
+                    debugLog('Permission denied - showing warning', 'error');
+                }
+                $("#aceite-json").val(data);
+            });
+
+            // Monitor reCAPTCHA callback
+            window.onRecaptchaSuccess = function(token) {
+                debugLog('reCAPTCHA token received: ' + token.substring(0, 50) + '...', 'success');
+                $('#g-recaptcha-response').val(token);
+            };
+
+            window.onRecaptchaError = function() {
+                debugLog('reCAPTCHA error occurred', 'error');
+            };
+
+            window.onRecaptchaExpired = function() {
+                debugLog('reCAPTCHA token expired', 'error');
+            };
+
+            // Form submission handler (mockup)
+            $("#form_crud_rest_api").on('submit', function(e) {
+                e.preventDefault();
+
+                debugLog('Form submission started...', 'info');
+
+                const formData = {
+                    'aceite-id': $('#aceite-id').val(),
+                    'aceite-termo_lgpd': $('#aceite-termo_lgpd').is(':checked') ? 'on' : '',
+                    'aceite-json': $('#aceite-json').val(),
+                    'g-recaptcha-response': $('#g-recaptcha-response').val(),
+                    'expected_action': $('#expected_action').val()
+                };
+
+                debugLog('Form Data:', 'info');
+                debugLog(JSON.stringify(formData, null, 2), 'info');
+
+                // Validate reCAPTCHA
+                const recaptchaResponse = formData['g-recaptcha-response'];
+                if (!recaptchaResponse || recaptchaResponse === '') {
+                    debugLog('ERROR: reCAPTCHA not completed!', 'error');
+                    alert('Por favor, complete o reCAPTCHA antes de enviar.');
+                    return false;
+                }
+
+                debugLog('reCAPTCHA validation: PASSED', 'success');
+                debugLog('In production, this would be sent to: controller_lgpd:event/2', 'info');
+                debugLog('Expected backend validation: Score >= 0.9', 'info');
+
+                // Show success message (mockup)
+                debugLog('Form submission completed successfully!', 'success');
+                alert('Termo aceito com sucesso!\n\n(Mockup - dados não foram enviados ao servidor)\n\nVeja o Debug Console para detalhes.');
+            });
+
+            debugLog('All event handlers registered', 'success');
+        });
+    </script>
+</body>
+</html>
+

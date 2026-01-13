@@ -1,0 +1,7 @@
+{
+  "event": {
+    "token": "TOKEN_FROM_RECAPTCHA",
+    "expectedAction": "LOGIN",
+    "siteKey": "6LeqFEMsAAAAAFyg11AZ7coDZZI63tmdv-rZI28c"
+  }
+}

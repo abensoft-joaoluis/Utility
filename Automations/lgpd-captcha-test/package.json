@@ -1,0 +1,16 @@
+{
+  "name": "lgpd-captcha-test",
+  "version": "1.0.0",
+  "description": "Testing LGPD captcha with Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "serve": "npx http-server -p 8080 -c-1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}
